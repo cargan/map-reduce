@@ -27,7 +27,6 @@ $sumWordCounts =
 
 $sumDataCounts =
     function($countsL, $countsR) {
-        $auth = 'Michael Brady';
         if (!in_array($auth, $countsR['authors'])) {
             return $countsL;
         }
@@ -58,13 +57,21 @@ $sumDataCounts =
     };
 
 $totals = array();
+$totalsFirst = array('Michael Brady' => array());
 
 foreach (glob($data) as $file) {
     $dataStream = explode("\n", trim(file_get_contents($file)));
     $dataConverted = array_map($lineToData, $dataStream);
-    $totals = array_reduce($dataConverted, $sumDataCounts, $totals);
+    // print_r($dataConverted);exit;
+    $totalsFirst = array_reduce($dataConverted, function($reduced, $current) {
+        foreach ($reduced as $author=>$data) {
+            if (in_array($author, $current['authors'])) {
+                $reduced[$author][] = $current['title'];
+            }
+        }
+        return $reduced;
+    }, $totalsFirst);
 }
 
-
-print_r($totals);
+print_r($totalsFirst);
 
